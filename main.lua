@@ -11,6 +11,7 @@ function love.load(arg)
   actor.speed = 100
   actor.speedUpConstant = 150
   actor.speedUp = 0
+  actor.blink = 0
   
   speedUpBox = {}
   speedUpBox.x = width - 100 - 100*0.3
@@ -35,8 +36,15 @@ function love.load(arg)
   table.insert(edges, edge)
   
   enemies = {}
+  max_enemies = 3
   
-  addEnemy()
+  time  = 0
+  Hz    = 1
+  dHz   = 0.08
+  score = 0
+  
+  font = love.graphics.newFont(28)
+  --addEnemy()
 end
 
 function love.keyreleased(key)
@@ -50,7 +58,7 @@ function love.keyreleased(key)
 end
 
 function love.update(dt)
-  -- tempolary array of enemies when it out of scean
+  -- tempolary array of enemies when it out of screan
   local remEnemy = {}
   
   local shiftDiff = (actor.speed + actor.speedUp)*dt
@@ -70,6 +78,13 @@ function love.update(dt)
     local dif = -actor.width
     if v.x < dif then
       table.insert(remEnemy, i)
+      score = score + 1
+    end
+    if CheckCollision(v.x,v.y,2,3,actor.x,actor.y,actor.width,actor.height) then
+      if actor.blink == 1 then
+        table.insert(remEnemy, i)
+        score = score - 1
+      end
     end
   end
   
@@ -77,6 +92,19 @@ function love.update(dt)
     table.remove(enemies, v)
   end
   
+  time = time + dt
+  if time > 2/Hz then
+    time = 0
+    Hz = Hz + dHz
+    if Hz > 6 then
+      Hz = 1
+      max_enemies = max_enemies + 2
+    end
+  end
+  
+  if time > 1/Hz then
+    actor.blink = 0
+  end
 end
 
 function love.draw()
@@ -92,11 +120,20 @@ function love.draw()
   
   -- draw our actor
   love.graphics.setColor(255,255,0,125)
-  love.graphics.rectangle("fill", actor.x, actor.y, actor.width, actor.height)
-  
-  -- draw some debug info
-  --love.graphics.setColor(0,0,0,255)
-  --love.graphics.print(actor.x, 100, 100)
+  if time < 1/Hz then
+    actor.blink = 1
+    love.graphics.rectangle("fill", actor.x, actor.y, actor.width, actor.height)
+  end
+  -- draw some score info
+  if score > 0 then
+    love.graphics.setColor(0,255,0,255)
+  elseif score < 0 then
+    love.graphics.setColor(255,0,0,255)
+  else 
+    love.graphics.setColor(0,0,0,255)
+  end
+  love.graphics.setFont(font)
+  love.graphics.print(score, 50, 50)
   
   --draw speedUp box
   love.graphics.setColor(0,0,0,125)
@@ -120,9 +157,19 @@ function speedUp()
 end
 
 function addEnemy()
+  if #enemies > max_enemies then return end
   local enemy = {}
   enemy.x = width
   enemy.y = actor.y
   table.insert(enemies, enemy)
   
+end
+
+-- Collision detection function.
+-- Checks if a and b overlap.
+-- w and h mean width and height.
+-- from [love2d tutorial, part 2](http://www.headchant.com/2010/12/31/love2d-%E2%80%93-tutorial-part-2-pew-pew/)
+function CheckCollision(ax1,ay1,aw,ah, bx1,by1,bw,bh)
+  local ax2,ay2,bx2,by2 = ax1 + aw, ay1 + ah, bx1 + bw, by1 + bh
+  return ax1 < bx2 and ax2 > bx1 and ay1 < by2 and ay2 > by1
 end
