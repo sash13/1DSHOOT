@@ -4,7 +4,8 @@
 love2d shooter
 For play game you must download and/or install [love2d][1]
 [1]: https://love2d.org
-
+and clone this repo or download LÖVE file [1DSHOOT.love][2]
+[2]: https://dl.dropboxusercontent.com/u/1664148/staff/1DSHOOT.love
 
 ![ras](http://img.openidev.ru/load/ag9zfm15cHJldHR5c2hvdGFyDgsSBkltYWdlcxit0BwM.png)
 
