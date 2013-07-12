@@ -148,6 +148,10 @@ function love.draw()
     end
   end
   
+  -- draw help info
+  love.graphics.setColor(0,0,0,125)
+  love.graphics.print('Press "Space" to speed up your player', 50, height/2+height/4)
+  love.graphics.print('Press "Z" to create enemies', 50, height/2+height/4+28)
 end
 
 function speedUp()
